@@ -1,0 +1,16 @@
+{
+    "name": "click_that_hood",
+    "version": "0.0.1",
+    "private": false,
+    "dependencies": {
+        "express": "3.0.6",
+        "less-middleware": "0.1.9",
+        "fs-tools": "0.2.8",
+        "config": "0.4.18"
+    },
+    "engines": {
+        "node": "0.8.x",
+        "npm": "1.1.x"
+    },
+    "license": "MIT"
+}

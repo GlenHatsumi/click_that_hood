@@ -1,0 +1,7 @@
+{ 
+  "dataFile": "oakland.geojson",
+  "stateName": "Calif.",
+  "googleMapsQuery": "Oakland, CA",
+  "dataUrl": "http://data.openoakland.org/dataset/zillow-neighborhoods",
+  "dataTitle": "OpenOakland"
+}

@@ -1,0 +1,609 @@
+@import 'http://fonts.googleapis.com/css?family=Open+Sans:400,300,600';
+
+@font-face {
+  font-family: 'Homestead';
+  src: url('../fonts/Homestead-Regular.ttf');
+}
+@font-face {
+  font-family: 'Wisdom Script';
+  src: url('../fonts/Wisdom-Script.otf');
+}
+@headerWidth: 320px;
+@footerHeight: 30px;
+@narrowHeaderWidth: 150px;
+
+@bodyMargin: 15px;
+
+@highlightColour: rgb(247, 148, 29);
+@secondaryColour: rgb(0, 200, 0);
+
+@chartColour: darken(@secondaryColour, 10);
+
+@selectedFilterColour: lighten(@highlightColour, 30);
+@hoverFilterColour: lighten(@highlightColour, 40);
+
+@mainBackgroundColour: rgb(235, 240, 220);
+
+@heatMapColour1: @highlightColour;
+@heatMapColour2: rgb(0, 100, 0);
+
+@dataTransitionDelay: 150ms;
+
+@fontSize: 14px;
+@borderRadius: 7px;
+
+@hoverNeighborhoodFillColour: fadeout(@highlightColour, 50%);
+@guessedNeighborhoodFillColour: rgba(0, 255, 0, .25);
+@unguessedNeighborhoodFillColour: rgba(0, 0, 0, .6);
+@inactiveNeighborhoodFillColour: rgba(128, 128, 128, .75);
+
+body {
+  background: @mainBackgroundColour;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+
+  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+  font-size: @fontSize;
+}
+
+body > header {
+  position: absolute;
+
+  top: 50%;
+  bottom: @bodyMargin;
+
+  margin-top: -220px;
+
+  left: @bodyMargin;
+  width: @headerWidth;
+
+  text-align: center;
+}
+body.main-menu > header {
+  top: 0;
+  margin-top: 0;
+  width: @narrowHeaderWidth;
+}
+body.main-menu > header .city-name,
+body.main-menu > header .state-abbreviation {
+  display: none;
+}
+
+body.no-difficult-game .difficult-game {
+  display: none;
+}
+
+header .city-name,
+#main-menu .cities .city-name {
+  display: block;
+  font-weight: normal;
+  font-family: 'Homestead';
+  font-size: 48px;
+  line-height: .9;
+  letter-spacing: 1px;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  margin-top: 40px;
+  text-rendering: optimizeLegibility;
+  word-wrap: break-word;
+}
+header .city-name::after,
+#main-menu .cities .city-name::after {
+  content: ',';
+  position: absolute;
+}
+#main-menu .cities li.add .city-name::after {
+  content: '…';
+}
+header .state-abbreviation,
+#main-menu .cities .state-abbreviation {
+  display: block;
+  font-weight: normal;
+  font-family: 'Wisdom Script';
+  letter-spacing: -1px;
+  font-size: 42px;
+  padding: 0;
+  margin: 0;
+  margin-top: 5px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+#main-menu .cities .city-name {
+  font-size: 48px * 2 / 3;
+  word-wrap: break-word;
+  padding: 0 10px;
+}
+#main-menu .cities .state-abbreviation {
+  font-size: 42px * 2 / 3;
+}
+
+
+body.main-menu #map {
+  display: none;
+}
+
+body > footer {
+  font-size: 12px;
+
+  opacity: .75;
+
+  z-index: 1000;
+
+  position: absolute;
+
+  left: @bodyMargin;
+  right: @bodyMargin;
+
+  bottom: 0;
+  height: @footerHeight;
+
+  text-align: center;
+}
+body > footer a,
+body > footer a:visited {
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0, 0, 0, .25);
+}
+
+body:not(.main-menu) > footer .main-menu {
+  display: none;
+}
+
+
+body > footer #cfa {
+  width: 48px;
+  vertical-align: middle;
+
+  position: relative;
+  top: -1px;
+  margin-right: -5px;
+}
+
+body.main-menu > footer .data,
+body.main-menu > footer .author {
+  display: none;
+}
+
+.logo {
+  margin-top: 20px;
+  width: 126px;
+  height: 143px;
+  max-width: 100%;
+}
+body > header #city-name {
+  margin-top: 30px;
+  width: 284px;
+  max-width: 100%;
+}
+body.main-menu > header #city-name {
+  display: none;
+}
+
+body > header > h3 {
+  font-weight: 600;
+}
+
+
+#map {
+  border-radius: @borderRadius;
+
+  position: absolute;
+  left: @bodyMargin * 2 + @headerWidth;
+  right: @bodyMargin;
+  top: @bodyMargin;
+  bottom: @footerHeight + @bodyMargin;
+
+  overflow: hidden;
+}
+
+#svg-container {
+  z-index: 50;
+  position: absolute;
+  top: 50px;
+  bottom: 50px;
+  left: 0;
+  right: 0;
+}
+#map svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+#google-maps-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+
+  opacity: 1;
+}
+#google-maps-overlay img {
+  position: absolute;
+}
+
+
+/* Click that hood */
+
+#count {
+  background: @mainBackgroundColour;
+  border-radius: 0 @borderRadius 0 0;
+
+  padding: 10px 20px 10px 10px;
+
+  position: absolute;
+  left: 0;
+  bottom: -40px;
+
+  font-weight: 600;
+  font-size: @fontSize * 2.5;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+#time {
+  background: @mainBackgroundColour;
+  border-radius: @borderRadius 0 0 0;
+
+  padding: 10px 10px 10px 20px;
+
+  position: absolute;
+  right: 0;
+  bottom: -40px;
+
+  font-weight: 600;
+  font-size: @fontSize * 2.5;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+#neighborhood-guess-wrapper {
+  float: left;
+  left: 50%;
+  position: relative;
+}
+
+#neighborhood-guess {
+  background: @mainBackgroundColour;
+  border-radius: @borderRadius;
+
+  float: left;
+  position: relative;
+  right: 50%;
+
+  top: -10px;
+  padding: 10px 20px;
+  z-index: 1000;
+  text-align: center;
+
+  pointer-events: none;
+
+  font-size: @fontSize * 1.5;
+  font-weight: 300;
+
+  display: none;
+  
+  &.visible {
+    display: block;
+  }
+}
+
+#neighborhood-guess span {
+  font-weight: 600;
+  font-size: @fontSize * 2.5;
+  letter-spacing: -1px;
+  line-height: 1;
+  display: block;
+}
+
+body.no-hover #neighborhood-hover {
+  display: none;
+}
+
+#neighborhood-hover {
+  position: absolute;
+  left: 0;
+  top: 0;
+
+  border-radius: @borderRadius;
+
+  z-index: 2000;
+  pointer-events: none;
+
+  text-align: center;
+
+  border: 1px solid white;
+  margin: -1px;
+
+  background: rgba(0, 0, 0, .8);
+
+  max-width: 400px;
+
+  background: fadeout(lighten(@highlightColour, 10%), 20%);
+
+  box-shadow: 0 2px 3px rgba(0, 0, 0, .5);
+
+  padding: 8px 16px;
+  box-sizing: border-box;
+
+  color: black;
+
+  pointer-events: none;
+
+  opacity: 0;
+
+  margin-top: 50px + 20px;
+
+  font-weight: 600;
+  font-size: @fontSize * 1.5;
+  letter-spacing: 0;
+  line-height: 1.2;
+
+  &.visible {
+    opacity: 1;
+  }
+}
+
+#map .neighborhood-boundary {
+  fill: none;
+}
+
+#map .neighborhood {
+  &.unguessed {
+    stroke-width: 1;
+    stroke: white;
+
+    fill: @unguessedNeighborhoodFillColour;
+    -webkit-transition: fill 300ms;
+    -moz-transition: fill 300ms;
+  }
+  &[inactive] {
+    fill: @inactiveNeighborhoodFillColour;
+  }
+  &:not([inactive]):hover {
+    fill: fadeout(@highlightColour, 50%);
+    cursor: pointer;
+    -webkit-transition: fill 50ms;
+    -moz-transition: fill 50ms;
+  }
+  &.guessed {
+    stroke: transparent;
+    fill: @guessedNeighborhoodFillColour;
+  }
+  &.guessed:hover {
+    stroke: white;
+
+    fill: mix(@guessedNeighborhoodFillColour, @hoverNeighborhoodFillColour, 50%);
+  }
+  &.right-guess {
+    -webkit-animation-name: blink;
+    -webkit-animation-duration: 500ms;
+    -webkit-animation-iteration-count: infinite;
+
+    -moz-animation-name: blink;
+    -moz-animation-duration: 500ms;
+    -moz-animation-iteration-count: infinite;
+  }
+  &.wrong-guess {
+    fill: rgba(255, 0, 0, .7) !important;
+
+    stroke: white;
+  }
+  &.guessed-animation {
+    stroke: transparent;
+    fill: @guessedNeighborhoodFillColour;
+
+    pointer-events: none;
+    z-index: 99999;
+    -webkit-transform-origin: 50% 50%;
+    -webkit-transition: -webkit-transform 500ms, fill 500ms;
+    -moz-transform-origin: 50% 50%;
+    -moz-transition: -moz-transform 500ms, fill 500ms;
+  }
+  &.guessed-animation.animate {
+    -webkit-transform: scale(3);
+    -moz-transform: scale(3);
+    fill: transparent;
+  }
+}
+
+@-webkit-keyframes blink {
+  0%, 49.99% { fill: rgba(0, 255, 0, .25); }
+  50%, 100% { fill: rgba(0, 0, 0, .6); }
+}
+@keyframes blink {
+  0%, 49.99% { fill: rgba(0, 255, 0, .25); }
+  50%, 100% { fill: rgba(0, 0, 0, .6); }
+}
+
+
+#cover {
+  position: absolute;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+
+  text-align: center;
+  letter-spacing: 0;
+  background: fadeout(@mainBackgroundColour, 10%);
+
+  font-size: @fontSize * 2;
+  font-weight: 300;
+
+  display: none;
+  -webkit-box-pack: center;
+  -webkit-box-align: center;
+
+  color: black;
+
+  &.visible {
+    display: block;
+    display: -moz-box;
+    display: -webkit-box;  
+  }
+}
+button {
+  font-size: @fontSize * 2;
+  font-weight: 600;
+  padding: 10px 50px;
+
+  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+
+  box-shadow: 0 0 5px @highlightColour;
+
+  cursor: pointer;
+}
+button:not(.smaller) > span:not(.difficult-game),
+button:not(.smaller) > span.difficult-game > span {
+  font-size: 70%;
+  display: block;
+}
+button.smaller {
+  font-weight: 400;
+  padding: 10px 20px;
+  font-size: 60%;
+}
+
+#cover > div {
+  display: none;
+
+  margin: 0 auto;
+
+  max-width: 500px;
+ 
+  &.visible {
+    display: block;
+  }
+}
+#cover h1 {
+  font-size: 100%;
+  padding: 0;
+  margin: 0;
+  font-weight: 500;
+}
+
+.small {
+  font-size: 80%;
+}
+
+.small img {
+  width: 30px;
+  height: 30px;
+  vertical-align: middle;
+  margin: 0 5px;
+  outline: 1px solid rgba(0, 0, 0, .5);
+}
+a {
+  color: inherit;
+}
+
+#main-menu {
+  display: none;
+
+  position: absolute;
+  top: @bodyMargin;
+  bottom: @bodyMargin + @footerHeight;
+  left: @bodyMargin * 2 + @narrowHeaderWidth;
+  right: @bodyMargin;
+
+  font-size: @fontSize * 1.5;
+  overflow-y: auto;
+  max-height: 100%;
+
+  text-align: center;
+}
+#main-menu.visible {
+  display: block;
+}
+#main-menu .logo {
+  float: left;
+}
+#main-menu .cities {
+  list-style: none;
+  padding: 0 50px;
+  margin: 0;
+}
+#main-menu .cities a {
+  text-decoration: none;
+}
+#main-menu .cities header {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -28px;
+}
+#main-menu .cities li {
+  display: inline-block;
+  width: 220px;
+  height: 280px;
+  margin: 15px 10px;
+  position: relative;
+}
+#main-menu .cities li a {
+  display: block;
+  height: 290px;
+  
+  border-radius: @borderRadius;
+  background: rgba(0, 0, 0, .15);
+}
+#main-menu .cities li a:hover {
+  background: rgba(0, 0, 0, .2);
+}
+#main-menu .cities li .map {
+  border-top: 1px solid transparent;
+  margin-top: 80px;
+  width: 200px;
+  height: 200px;
+  opacity: .8;
+  display: inline-block;
+  position: relative;
+
+  border-radius: @borderRadius;
+  overflow: hidden;
+}
+#main-menu .cities li a:hover .map {
+  opacity: 1;
+}
+#main-menu .cities li .map img {
+  position: absolute;
+  left: 0;
+  top: -20px;
+  width: 200px;
+  height: 240px;
+}
+
+#main-menu .cities li.add a {
+  height: 280px;
+  color: rgba(0, 0, 0, .15);
+  border: 5px dotted rgba(0, 0, 0, .15);
+  background: transparent;
+}
+#main-menu .cities li.add a:hover {
+  color: rgba(0, 0, 0, .2);
+  border-color: rgba(0, 0, 0, .2);
+}
+#main-menu .cities li.add .city-name {
+  margin-top: 140px;
+}
+
+q {
+  font-style: italic;
+  
+  &::before {
+    content: '“';
+  }
+  &::after {
+    content: '”';
+  }
+}
+
+#neighborhoods-removed {
+  display: none;
+}
+#neighborhoods-removed.visible {
+  display: inline;
+}
